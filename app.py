@@ -1,12 +1,16 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import argparse
+import os
+import sys
 import shutil
 import sys
 from colorama import Fore, Style, init
 import argparse
 import os
 from Processor import Checker
+from Misc import print_color_msg
 
 def main() -> None:
     """driver code"""
@@ -93,25 +97,19 @@ def main() -> None:
 
         # fix taxyonomy package provided by CMF CL CI
         if provider_name == "CMF-CLCI":
-            pass
+
+            print_color_msg(f"\nOutput result:",Fore.BLUE)
+            print_color_msg(f"-"*14,Fore.BLUE)
+            print_color_msg(f"    {os.path.basename(args.package)} is fixed",Fore.BLUE)
 
         # fix taxyonomy package provided by EDINET
         if provider_name == "EDINET":
-            pass
+            
+            print_color_msg(f"\nOutput result:",Fore.BLUE)
+            print_color_msg(f"-"*14,Fore.BLUE)
+            print_color_msg(f"    {os.path.basename(args.package)} is fixed",Fore.BLUE)            
 
         return None
-
-def move_in_to_out() -> None:
-    """move fixed input folder to output"""
-    source_zip = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(args.package.replace("\\", "/").replace("..",""))
-    destination_folder = os.path.dirname(source_zip).replace("input","output")
-    shutil.move(source_zip, destination_folder)
-    return None
-
-def print_color_msg(msg, color=Fore.WHITE) -> None:
-    """print a colorized message"""
-    print(f"{color}{msg}{Style.RESET_ALL}")
-    return None
 
 if __name__ == "__main__":
     main()
