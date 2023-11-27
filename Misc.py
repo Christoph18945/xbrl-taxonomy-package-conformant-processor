@@ -1,10 +1,43 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+"""Misc.py
+
+
+"""
+
 import os
 import shutil
 import zipfile
 from colorama import Fore, Style, init
+
+def zip_folder(folder_path, zip_filename):
+    # Open a zip file for writing
+    with zipfile.ZipFile(zip_filename, 'w') as zipf:
+        # Iterate over all files and subdirectories in the folder
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Determine the relative path to the file from the root folder
+                relative_path = os.path.relpath(file_path, folder_path)
+                # Use arcname to specify the target folder as the root folder in the zip file
+                zipf.write(file_path, arcname=os.path.join(os.path.basename(folder_path), relative_path))
+
+def move_folder_recursive(source_folder, destination_folder):
+    # Create the destination folder if it doesn't exist
+    os.makedirs(destination_folder, exist_ok=True)
+    # Iterate over the contents of the source folder
+    for item in os.listdir(source_folder):
+        source_item_path = os.path.join(source_folder, item)
+        destination_item_path = os.path.join(destination_folder, item)
+        # If the item is a directory, move it recursively
+        if os.path.isdir(source_item_path):
+            move_folder_recursive(source_item_path, destination_item_path)
+        else:
+            # If the item is a file, move it
+            shutil.move(source_item_path, destination_item_path)
+    # Remove the empty source folder
+    os.rmdir(source_folder)
 
 def gen_zip_package(source_path, destination_zip_archive) -> None:
     """Packs destination folder into ZIUP arcihve. root directory us the folder which will be packed"""
