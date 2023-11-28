@@ -4,7 +4,13 @@ A small command line program that checks whether an XBRL Taxonomy Package compli
 
 ### How it works
 
-How it works is very simple: By calling the ```app.py``` file the provider abbreveation and the path to the ZIP archive must be passed do it. There are test packages located in the ```test``` folder, but the location of the package does not matter, as long as a path is accesible. The ```Processor.py``` class checks and fixes the package, and moves the fixed result over to the ```output``` folder.
+1. Run for example ```app.py EDINET "full/path/to/input/archive.zip"```. The ```app.py``` file is the starting point of the application. In this case ```EDINET``` is the abbreveation of the taxonomy package provider and ```full/path/to/archive.zip``` is the path to the zip archive. Packages to test/to experiment with the application are located in the ```input```-folder.
+
+2. The class ```Checker```-class in ```Checker.py``` analyzes the package according to the [Taxonomy Package 1.0 standard](https://www.xbrl.org/Specification/taxonomy-package/REC-2016-04-19/taxonomy-package-REC-2016-04-19.html). The result of the analyzation is printed on the commandline.
+
+3. Based on the result calculated by the ```Checker```-class, the next step is to fix the package. ```Fixer.py``` contains the an Interface with relevant abstract methods. Each class represents a package by a specific provider. When the class is initialized, the package to fix, will be copied over to the ```output```-folder. The definied methods from the Interface are responsible for fixing the package now located in the ```output```-folder.
+
+4. The result of the fixed package will be a fixed ```zip``` archive containing all relevant data.
 
 ### Content overview
 
@@ -23,31 +29,31 @@ How it works is very simple: By calling the ```app.py``` file the provider abbre
 ## :notebook: Features
 
 * Check and fix...
-    * xml format check
-    * case sensitivity check
+    * xml format checking
+    * case sensitivity checking (done by python)
     * archive format ceck
-    * top-level directory check
-    * META-INF folder
-    * taxonomyPackage.xml check
-    * catalog.xml check
-    * URL resolution check
+    * top-level directory checking and fixing
+    * META-INF folder checking and fixing
+    * taxonomyPackage.xml checkng and fixing
+    * catalog.xml checking and fixing
+    * URL resolution checking and fixing
     * Entrypoint localiazation
 
 ## :runner: Getting started
 
 ### Prerequisites
 
-```py
+```{python}
 pip3 install -r requirements.txt
 ```
 
 ### Example usage
 
-```py
+```{python}
 python3 app.py [PROVIDER] [PATH/TO/PKG]
 ```
 
-```py
+```{python}
 python3 app.py EDINET "input/ALL_20221101.zip"
 ```
 

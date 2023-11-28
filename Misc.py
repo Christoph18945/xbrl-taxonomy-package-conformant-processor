@@ -3,7 +3,7 @@
 
 """Misc.py
 
-
+The module provides generic functions.
 """
 
 import os
@@ -12,6 +12,7 @@ import zipfile
 from colorama import Fore, Style, init
 
 def zip_folder(folder_path, zip_filename):
+    """"""
     # Open a zip file for writing
     with zipfile.ZipFile(zip_filename, 'w') as zipf:
         # Iterate over all files and subdirectories in the folder
@@ -24,6 +25,7 @@ def zip_folder(folder_path, zip_filename):
                 zipf.write(file_path, arcname=os.path.join(os.path.basename(folder_path), relative_path))
 
 def move_folder_recursive(source_folder, destination_folder):
+    """"""
     # Create the destination folder if it doesn't exist
     os.makedirs(destination_folder, exist_ok=True)
     # Iterate over the contents of the source folder
@@ -41,11 +43,11 @@ def move_folder_recursive(source_folder, destination_folder):
 
 def gen_zip_package(source_path, destination_zip_archive) -> None:
     """Packs destination folder into ZIUP arcihve. root directory us the folder which will be packed"""
-    zip_archive = os.path.basename('.')[0]
-    zip_name = zip_archive.split('.')[1]
-    zip_extension = zip_archive.split('.')[1]
+    zip_archive: str = os.path.basename('.')[0]
+    zip_name: str = zip_archive.split('.')[1]
+    zip_extension: str = zip_archive.split('.')[1]
     shutil.make_archive(zip_name, zip_extension, os.path.dirname(source_path), os.path.basename(source_path.strip(os.sep)))
-    shutil.moive('%s.%s' & (zip_name, zip_extension), destination_zip_archive)
+    shutil.move('%s.%s' & (zip_name, zip_extension), destination_zip_archive)
 
 def extract_zip_in_same_folder(zip_path) -> None:
     """extract zip file """
@@ -57,12 +59,6 @@ def extract_zip_in_same_folder(zip_path) -> None:
         # Extract all contents to the directory
         zip_ref.extractall(zip_dir)
 
-def move_in_to_out() -> None:
-    """move fixed input folder to output"""
-    source_zip = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(args.package.replace("\\", "/").replace("..",""))
-    destination_folder = os.path.dirname(source_zip).replace("input","output")
-    shutil.move(source_zip, destination_folder)
-
-def print_color_msg(msg, color=Fore.WHITE) -> None:
+def print_color_msg(msg, color=Fore.WHITE) -> str:
     """print a colorized message"""
-    print(f"{color}{msg}{Style.RESET_ALL}")
+    return f"{color}{msg}{Style.RESET_ALL}"

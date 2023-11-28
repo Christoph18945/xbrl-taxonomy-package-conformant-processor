@@ -4,34 +4,40 @@
 """Checker.py"""
 
 import os
+from xml.etree import cElementTree
 import xml.etree.ElementTree as ET
+import requests
+from lxml import etree
 from zipfile import ZipFile
 from xmlschema import XMLSchema
 
 class Checker:
-    """"""
+    """The class provides methods to check an xbrl
+    taxonomy package based on the standard here:
+    https://www.xbrl.org/Specification/taxonomy-package/REC-2016-04-19/taxonomy-package-REC-2016-04-19.html.
+    """
     def __init__(self) -> None:
         """class constructor"""
         return None
 
     def check_case_sensitivity(self) -> None:
-        """A Conformant Processor MUST treat all filenames prescribed by this
-        specification as being case-sensitive."""
+        """'A Conformant Processor MUST treat all filenames prescribed by this
+        specification as being case-sensitive.'"""
         # Python treats uppercase and lowercase letters as distinct characters.
         # This means that variable and Variable are different identifiers.
         return None
 
     def has_zip_format(self, archive: str) -> bool:
-        """A Taxonomy Package MUST conform to the .ZIP File Format
-        Specification [ZIP]"""
+        """'A Taxonomy Package MUST conform to the .ZIP File Format
+        Specification [ZIP]'"""
         if archive.endswith(".zip"):
             return True
         else:
             return False
 
     def has_top_level_single_dir(self, archive: str) -> bool:
-        """A Taxonomy Package MUST contain a single top-level directory, with all other files being
-        contained within that directory or descendant subdirectories (tpe:invalidDirectoryStructure)."""
+        """'A Taxonomy Package MUST contain a single top-level directory, with all other files being
+        contained within that directory or descendant subdirectories (tpe:invalidDirectoryStructure).'"""
         archive_res: str = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
         with ZipFile(archive_res, "r") as zip_file:
             top_dir = {item.split('/')[0] for item in zip_file.namelist()}
@@ -41,29 +47,39 @@ class Checker:
                 return False
 
     def is_xml(self, filename: str) -> bool:
-        """The taxonomyPackage.xml file MUST be an XML file [XML]"""
+        """'The taxonomyPackage.xml file MUST be an XML file [XML]'"""
         if filename.endswith(".xml"):
             return True
         else:
             return False
 
-    def validate_xml(self, schemafile: str, example: str) -> bool:
-        """The taxonomyPackage.xml MUST conform to the taxonomy-package.xsd
+    def validate_xml(self, schemafile: str, example: ET.ElementTree) -> bool:
+        """'The taxonomyPackage.xml MUST conform to the taxonomy-package.xsd
         schema (Appendix B.1) (tpe:invalidMetaDataFile).
         
-        If present, the catalog.xml file MUST be a valid XML Catalog file, as defined by the XML Catalog specification [XML Catalogs] and MUST also conform to the restricted schema defined by this specification (see Appendix B.2) (tpe:invalidCatalogFile). 
-        """
-        schema = XMLSchema(schemafile)
-        tree = ET.parse(example)
-        if not tree.validate(schema):
-            raise ValueError('The XML document is invalid.')
-        else:
-            print("Schema is valid!")
-            return True
+        If present, the catalog.xml file MUST be a valid XML Catalog file, as defined by the XML Catalog specification
+        [XML Catalogs] and MUST also conform to the restricted schema defined by this specification (see Appendix B.2)
+        (tpe:invalidCatalogFile).'"""
+        try:
+            # Load XML document
+            xml_document: ET.ElementTree = etree.parse(example)
+            # Load XML schema
+            xml_schema = etree.XMLSchema(file=schemafile)
+            # Validate XML document against the schema
+            if xml_schema.assertValid(xml_document):
+                return True
+            print(f"Validation successful. {example} is valid against {schemafile}")
+        except etree.XMLSchemaError as schema_error:
+            print(f"XML Schema Error: {schema_error}")
+        except etree.DocumentInvalid as document_invalid:
+            print(f"Document Invalid: {document_invalid}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        return False         
 
-    def has_meta_inf_folder(self, archive: zip, folder_name: str = "META-INF") -> bool:
-        """The top-level directory MUST contain a sub directory named META-INF """
-        zipfilepath = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
+    def has_meta_inf_folder(self, archive: str, folder_name: str = "META-INF") -> bool:
+        """'The top-level directory MUST contain a sub directory named META-INF.'"""
+        zipfilepath = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(str(archive).replace("\\", "/").replace("..",""))
         with ZipFile(zipfilepath, 'r') as zip_file:
             archive_contents = zip_file.namelist()
             for folder in archive_contents:
@@ -74,7 +90,7 @@ class Checker:
             return False
 
     def has_taxonomy_package_xml(self, archive, tp_file: str = "taxonomyPackage.xml") -> bool:
-        """The top-level directory MUST contain a taxonomyPackage.xml file"""
+        """'The top-level directory MUST contain a taxonomyPackage.xml file.'"""
         zipfilepath = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
         with ZipFile(zipfilepath, 'r') as zip_file:
             archive_contents = zip_file.namelist()
@@ -86,12 +102,11 @@ class Checker:
             return False
 
     def has_catalog_xml(self, archive, catalog_file: str = "catalog.xml") -> bool:
-        """The top-level directory MUST ontain a catalog.xml file
+        """'The top-level directory MUST ontain a catalog.xml file
         
         A Taxonomy Package MUST NOT include a catalog file which includes more than one rewriteURI element
         with the same value (after performing URI Normalization, as prescribed by the XML Catalog Specification)
-        for the @uriStartString attribute (tpe:multipleRewriteURIsForStartString). 
-        """
+        for the @uriStartString attribute (tpe:multipleRewriteURIsForStartString).'"""
         zipfilepath = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
         with ZipFile(zipfilepath, 'r') as zip_file:
             archive_contents = zip_file.namelist()
@@ -103,7 +118,7 @@ class Checker:
             return False    
 
     def check_rel_url_base_resolution(self):
-        """Relative URLs MUST undergo XML Base resolution [XML Base].
+        """'Relative URLs MUST undergo XML Base resolution [XML Base].
         More info here: https://www.w3.org/TR/xmlbase/#syntax
         
         Example:
@@ -136,7 +151,7 @@ class Checker:
         "Hot Pick #1" resolves to the URI "http://example.org/hotpicks/pick1.xml"
         "Hot Pick #2" resolves to the URI "http://example.org/hotpicks/pick2.xml"
         "Hot Pick #3" resolves to the URI "http://example.org/hotpicks/pick3.xml"
-        """
+        '"""
         import xml.etree.ElementTree as ET
         from urllib.parse import urljoin
 
@@ -177,11 +192,8 @@ class Checker:
         print(resolved_xml)
 
     def check_entry_point_location(self):
-        """A Conformant Processor MUST refuse to open any entry point where one or more of
-        its <tp:entryPointDocument> URLs resolve to anything other than a taxonomy schema or linkbase document."""
-        import xml.etree.ElementTree as ET
-        import requests
-
+        """'A Conformant Processor MUST refuse to open any entry point where one or more of
+        its <tp:entryPointDocument> URLs resolve to anything other than a taxonomy schema or linkbase document.'"""
         def is_taxonomy_document(url):
             try:
                 # Fetch the content of the URL
