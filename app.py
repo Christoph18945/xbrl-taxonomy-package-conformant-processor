@@ -15,7 +15,7 @@ from colorama import Fore, init
 import argparse
 import os
 from Checker import Checker
-from Misc import print_color_msg, zip_folder
+from Misc import gen_zip_archive, print_color_msg
 from Fixer import EBATaxonomyPackage, EDINETTaxonomyPackage
 
 def main() -> None:
@@ -108,12 +108,14 @@ def main() -> None:
         source_zip_path = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(args.package.replace("\\", "/").replace("..","")).replace(".zip","")
         destination_folder = os.path.dirname(source_zip).replace("input","output")
 
-        # fix taxyonomy package provided by EBA
+        # fix taxyonomy package provided by the European Banking Authority
         if provider_name == "EBA":
+            print_color_msg(f"\nFixing package...",Fore.YELLOW)
+
             # initialize the EBA class
             eba_taxonomy_package: EBATaxonomyPackage = EBATaxonomyPackage(source_zip_path, destination_folder)
             
-            # if all three are true, there is nothig to fix and
+            # if all three variables are true, there is nothig to fix and
             # the package is moved as it is in the output-folder
             if ZIP_FORMAT == True:
                 pass
@@ -130,6 +132,7 @@ def main() -> None:
             else:
                 eba_taxonomy_package.fix_top_level_single_dir()
 
+            # remove the working folder in the output folder
             target_dir = source_zip.replace("input", "output").replace(".zip","")
             shutil.rmtree(target_dir)
 
@@ -139,13 +142,15 @@ def main() -> None:
 
         # fix taxonomy package provided by the FSA (EDINET system)
         if provider_name == "EDINET":
+            print_color_msg(f"\nFixing package...",Fore.YELLOW)
+
             # initialize the EDINET class
             edinet_taxonomy_package: EDINETTaxonomyPackage = EDINETTaxonomyPackage(source_zip_path, destination_folder)
 
             if ZIP_FORMAT == True:
                 pass
             else:
-                edinet_taxonomy_package.fix_zip_format()
+                edinet_taxonomy_package.convert_to_zip_archive()
 
             if METAINF_DIR == True:
                 pass
@@ -157,22 +162,50 @@ def main() -> None:
             else:
                 edinet_taxonomy_package.fix_top_level_single_dir()
 
-            d = source_zip.replace("input", "output")
-            target_dir = source_zip.replace("input", "output").replace(".zip","")
-            base_dir = d.replace(source_zip.replace(".zip",""),"")
+            # prepare variables to work with
+            full_path_to_zip: str = source_zip.replace("input", "output")
+            target_output_dir: str = source_zip.replace("input", "output").replace(".zip","")
 
+            # restructure the folder strucutre in the package
+            # means moveing taxonomy/, samples/ and META-INF/ folder
+            # in the root directory
             edinet_taxonomy_package.restructure_folder()
 
-            edinet_taxonomy_package.fix_catalog_xml(target_dir)
-            edinet_taxonomy_package.fix_taxonomy_package_xml(target_dir)
+            # generate and validate the catalog.xml file
+            edinet_taxonomy_package.fix_catalog_xml(target_output_dir)
+            
+            # generate and validate the taxonomyPackage.xml file
+            edinet_taxonomy_package.fix_taxonomy_package_xml(target_output_dir)
 
-            zip_folder(target_dir, d)
+            # compose zip archive
+            gen_zip_archive(target_output_dir, full_path_to_zip)
 
-            shutil.rmtree(target_dir)
+            # remove the folder next to the fixed zip archive, because
+            # not needed anymore
+            shutil.rmtree(target_output_dir)
 
+            # print output result information
             print_color_msg(f"\nOutput result:",Fore.BLUE)
             print_color_msg(f"-"*14,Fore.BLUE)
-            print_color_msg(f"    {os.path.basename(args.package)} is fixed",Fore.BLUE)            
+            print_color_msg(f'    {os.path.basename(args.package.replace("input","output"))} is fixed!\n',Fore.BLUE)
+
+        # TODO: This is just a first working template version. Fixes for more packages should be implemented.
+        # The following packages could be supported as well:
+        #     https://www.sec.gov/edgar/information-for-filers/standard-taxonomies
+        #     https://xbrl.us/xbrl-taxonomy/2021-acfr/
+        #     https://xbrl.us/xbrl-taxonomy/2023-mutual-fund-riskreturn/
+        #     https://www.ifrs.org/issued-standards/ifrs-taxonomy/
+        #     https://esurfi-assurance.banque-france.fr/
+        #     https://www.bundesbank.de/en/service/reporting-systems/banking-supervision/formats-xbrl-and-xml-/formats-xml-and-xbrl--619400
+        #     https://www.bde.es/wbe/en/entidades-profesionales/supervisadas/informacion-financiera-a-remitir-entidades-supervisadas/entidades-credito/taxonomias/
+        #     https://www.bportugal.pt/en/page/reporting-obligations-supervised-institutions
+        #     https://www.bankofengland.co.uk/prudential-regulation/regulatory-reporting/regulatory-reporting-banking-sector/banks-building-societies-and-investment-firms
+        #     https://www.centralbank.ie/regulation/industry-market-sectors/investment-firms
+        #     https://www.cipc.co.za/?page_id=4400
+        #     https://www.cmfchile.cl/portal/principal/613/w3-article-49999.html
+        #     https://www.dnb.nl/en/login/dlr/information-and-documentation/
+        #     https://www.esma.europa.eu/document/esma-esef-taxonomy-2021
+        #     ...
 
         return None
 
