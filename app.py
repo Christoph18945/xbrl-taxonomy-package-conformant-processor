@@ -14,9 +14,9 @@ import sys
 from colorama import Fore, init
 import argparse
 import os
-from Checker import Checker
-from Misc import gen_zip_archive, print_color_msg
-from Fixer import EBATaxonomyPackage, EDINETTaxonomyPackage
+from TPChecker import TPChecker
+from TPMisc import gen_zip_archive, print_color_msg
+from TPFixer import EBATaxonomyPackage, EDINETTaxonomyPackage
 
 def main() -> None:
     """driver code"""
@@ -50,7 +50,7 @@ def main() -> None:
         print_color_msg(f"-"*18,Fore.BLUE)
         
         # init Checker class to analyze the provided package
-        tp_checker = Checker()
+        tp_checker = TPChecker()
 
         # set vars forstatus checker
         ZIP_FORMAT = False
@@ -120,7 +120,7 @@ def main() -> None:
             if ZIP_FORMAT == True:
                 pass
             else:
-                eba_taxonomy_package.fix_zip_format()
+                eba_taxonomy_package.convert_to_zip_archive()
             
             if METAINF_DIR == True:
                 pass

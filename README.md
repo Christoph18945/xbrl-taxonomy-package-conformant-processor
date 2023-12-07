@@ -8,23 +8,26 @@ A small command line program that checks whether an XBRL Taxonomy Package compli
 
 1. Run for example ```python3 app.py EDINET "full/path/to/input/archive.zip"```. The ```app.py``` file is the starting point of the application. ```EDINET``` represents the Electronic Disclosure System provided by the [JFSA](https://www.fsa.go.jp/en/). The path afterwards can be any path locating an XBRL Taxonomy Package (ZIP). In this case ```EDINET``` is the abbreveation of the taxonomy package provider and ```full/path/to/archive.zip``` is the path to the zip archive. Packages to test/to experiment with the application are located in the ```input```-folder.
 
-2. The class ```Checker``` class in ```Checker.py``` analyzes the package according to the [Taxonomy Package 1.0 standard](https://www.xbrl.org/Specification/taxonomy-package/REC-2016-04-19/taxonomy-package-REC-2016-04-19.html). The result of the analyzation is displayed on the command line.
+2. The class ```Checker``` class in ```TPChecker.py``` analyzes the package according to the [Taxonomy Package 1.0 standard](https://www.xbrl.org/Specification/taxonomy-package/REC-2016-04-19/taxonomy-package-REC-2016-04-19.html). The result of the analyzation is displayed on the command line.
 
-3. Based on the result calculated by the ```Checker```-class, the next step is to fix the package. ```Fixer.py``` contains an Interface with relevant abstract methods. Each class represents a package by a specific provider. When the class is initialized, the package to fix will be copied over to the ```output```-folder. The definied methods from the Interface are responsible for fixing the package. The result of the fixed package will be a fixed ```zip``` archive containing all relevant data.
+3. Based on the result calculated by the ```Checker```-class, the next step is to fix the package. ```TPFixer.py``` contains an Interface with relevant abstract methods. Each class represents a package by a specific provider. When the class is initialized, the package to fix will be copied over to the ```output```-folder. The definied methods from the Interface are responsible for fixing the package. The result of the fixed package will be a fixed ```zip``` archive containing all relevant data.
 
 ### Content overview
 
     .
-    ├── input/ - contains xbrl taxonomy packages
-    ├── logs/ - folder contains logfiles produced by program
-    ├── output/ - contains the fixed taxonomy packages
-    ├── schemas/ - contains XML schemas to validate against
-    ├── tests/ - contains tests
+    ├── .vscode/ - visual studio code settings
+    ├── tests/ - code and data for tests
+    ├── input/ - xbrl taxonomy packages
+    ├── output/ - folder for fixed taxonomy packages
+    ├── venv/ - data for virtual environemnt 
+    ├── .gitignore - contains folders/files ignored by git
     ├── app.py - program entry point
-    ├── Procesor.py - The conformant processor
-    ├── README.md - contains project information
+    ├── LICENSE - license text
+    ├── README.md - relevant information about the project
     ├── requirements.txt - requirements to run the project
-    └── TaxonomyPackage.py - Contains code to fix specific xbrl taxonoy pacakges
+    ├── TPChecker.py - check package according to the standard
+    ├── TPFixer.py - Fix package according to standard
+    └── TPMisc.py - module with helper functions
 
 ## :notebook: Features
 
@@ -41,20 +44,57 @@ A small command line program that checks whether an XBRL Taxonomy Package compli
 
 ## :runner: Getting started
 
-### Prerequisites
+### Prerequisites and example usage
 
-```python
+1. Activate virtual environment:
+
+```bash
+source venv/bin/activate
+```
+
+2. Install requirements:
+
+```bash
 pip3 install -r requirements.txt
 ```
 
-### Example usage
+3. Run script:
 
-```python
+```bash
 python3 app.py [PROVIDER] [PATH/TO/PKG]
 ```
 
-```python
+```bash
 python3 app.py EDINET "input/ALL_20221101/ALL_20221101.zip"
+```
+
+```bash
+Input information:
+------------------
+    Provider -> EDINET
+    Package  -> ..\input\ALL_20221101\ALL_20221101.zip
+
+Analyzis results:
+------------------
+    DONE: Package is ZIP
+    ERROR: Package has not single toplevel dir
+    ERROR: Package has no META-INF folder
+    ERROR: Package has no catalog.xml
+    ERROR: Package has no taxonomy-package.xml
+
+Fixing package...
+    META-INF directory generated
+    Top level directory generated
+    Package content restructured
+    catalog.xml file generated
+    catalog.xml is xml file
+    taxonomyPackage.xml file generated
+    taxonomyPackage.xml is xml file
+    Final zip generated
+
+Output result:
+--------------
+    ..\output\ALL_20221101\ALL_20221101.zip is fixed!
 ```
 
 ## :books: Resources used to create this project

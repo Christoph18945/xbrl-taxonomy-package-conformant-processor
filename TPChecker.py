@@ -12,11 +12,10 @@ import xml.etree.ElementTree as ET
 from colorama import Fore
 from lxml import etree
 from zipfile import ZipFile
-import xml.etree.ElementTree as ET
 from urllib.parse import urljoin
-from Misc import print_color_msg
+from TPMisc import print_color_msg
 
-class Checker:
+class TPChecker:
     """The class provides methods to check an xbrl taxonomy package based on the standard here:
     https://www.xbrl.org/Specification/taxonomy-package/REC-2016-04-19/taxonomy-package-REC-2016-04-19.html.
     """
@@ -44,7 +43,7 @@ class Checker:
         """Standard description: 'A Taxonomy Package MUST contain a single top-level directory, with all other files being
         contained within that directory or descendant subdirectories (tpe:invalidDirectoryStructure).'"""
         archive_res: str = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
-        zip_file: ZipFile.ZipFile
+        zip_file: ZipFile
         with ZipFile(archive_res, "r") as zip_file:
             top_dir: set = {item.split('/')[0] for item in zip_file.namelist()}
             if len(top_dir) == 1:
@@ -75,7 +74,7 @@ class Checker:
     def has_meta_inf_folder(self, archive: str, folder_name: str = "META-INF") -> bool:
         """Standard description: 'The top-level directory MUST contain a sub directory named META-INF.'"""
         zipfilepath: str = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(str(archive).replace("\\", "/").replace("..",""))
-        zip_file: ZipFile.ZipFile
+        zip_file: ZipFile
         with ZipFile(zipfilepath, 'r') as zip_file:
             archive_contents = zip_file.namelist()
             for folder in archive_contents:
@@ -88,7 +87,7 @@ class Checker:
     def has_taxonomy_package_xml(self, archive: str, tp_file: str = "taxonomyPackage.xml") -> bool:
         """Standard description: 'The top-level directory MUST contain a taxonomyPackage.xml file.'"""
         zip_file_path: str = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
-        zip_file: ZipFile.ZipFile
+        zip_file: ZipFile
         with ZipFile(zip_file_path, 'r') as zip_file:
             archive_contents: object = zip_file.namelist()
             for folder in archive_contents:
@@ -105,7 +104,7 @@ class Checker:
         with the same value (after performing URI Normalization, as prescribed by the XML Catalog Specification)
         for the @uriStartString attribute (tpe:multipleRewriteURIsForStartString).'"""
         zipfilepath: str = os.path.dirname(os.path.abspath(__file__)) + os.path.abspath(archive.replace("\\", "/").replace("..",""))
-        zip_file: ZipFile.ZipFile
+        zip_file: ZipFile
         with ZipFile(zipfilepath, 'r') as zip_file:
             archive_contents = zip_file.namelist()
             for folder in archive_contents:
@@ -113,7 +112,7 @@ class Checker:
                     return True
                 else:
                     continue
-            return False    
+            return False
 
     # TODO: Further development and testing needed. It is assumed though that the
     # xml base resolution is valid, because providers test the package as well.

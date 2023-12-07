@@ -8,9 +8,9 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "app.py",
+            "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["EBA","..\\input\\EBA_CRD_XBRL_3.3_Reporting_Frameworks_3.3.0.0_errata\\EBA_CRD_XBRL_3.3_Reporting_Frameworks_3.3.0.0_errata.zip"],
+            // "args": ["EBA","..\\input\\EBA_CRD_XBRL_3.3_Reporting_Frameworks_3.3.0.0_errata\\EBA_CRD_XBRL_3.3_Reporting_Frameworks_3.3.0.0_errata.zip"],
             // "args": ["EDINET","..\\input\\ALL_20221101\\ALL_20221101.zip"],
             "justMyCode": true
         }

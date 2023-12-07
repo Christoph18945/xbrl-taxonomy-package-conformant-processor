@@ -17,8 +17,8 @@ import shutil
 import zipfile
 import os
 from colorama import Fore
-from Checker import Checker
-from Misc import print_color_msg
+from TPChecker import TPChecker
+from TPMisc import print_color_msg
 
 class TaxonomyPackageFixerInterface(ABC):
     """The Interface provides methods to fix an
@@ -179,7 +179,7 @@ class EDINETTaxonomyPackage(TaxonomyPackageFixerInterface):
             print_color_msg(f'    ERROR: {os.path.join(source_folder, "META-INF", "taxonomyPackage.xml")} is not an xml file')
         
         # validate taxonomyPackage.xml file
-        check_taxonomy_pkg_xml: Checker = Checker()
+        check_taxonomy_pkg_xml: TPChecker = TPChecker()
         check_taxonomy_pkg_xml.validate_xml("http://www.xbrl.org/2016/taxonomy-package.xsd",os.path.join(source_folder, "META-INF", "taxonomyPackage.xml"))
         return None
 
@@ -220,7 +220,7 @@ class EDINETTaxonomyPackage(TaxonomyPackageFixerInterface):
         else:
             print_color_msg(f'    ERROR: {os.path.join(source_folder, "META-INF", "catalog.xml").endswith(".xml")} is not an xml file')        
         # validate catalog.xml file
-        check_catalog_xml: Checker = Checker()
+        check_catalog_xml: TPChecker = TPChecker()
         check_catalog_xml.validate_xml("http://www.xbrl.org/2016/taxonomy-package-catalog.xsd",os.path.join(source_folder, "META-INF", "catalog.xml"))
         return None
 

@@ -37,15 +37,6 @@ def move_folder_recursively(source_folder: str, destination_folder: str) -> None
     os.rmdir(source_folder)
     return None
 
-def gen_zip_package(source_path: str, destination_zip_archive: str) -> None:
-    """Packs destination folder into ZIUP arcihve. The root directory is the folder that will be packed."""
-    zip_archive: str = os.path.basename('.')[0]
-    zip_name: str = zip_archive.split('.')[1]
-    zip_extension: str = zip_archive.split('.')[1]
-    shutil.make_archive(zip_name, zip_extension, os.path.dirname(source_path), os.path.basename(source_path.strip(os.sep)))
-    shutil.move('%s.%s' & (zip_name, zip_extension), destination_zip_archive)
-    return None
-
 def extract_zip_in_same_folder(zip_path: str) -> None:
     """Extract zip file to destination path."""
     zip_dir: str = os.path.dirname(os.path.abspath(zip_path))
